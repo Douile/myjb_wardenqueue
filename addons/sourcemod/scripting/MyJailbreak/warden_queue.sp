@@ -21,14 +21,13 @@
  */
 
 /* TODO
-Add commands
-Add convars
-Add text (localisation)
-Add enable/disable
-List/Admin control
-Override sm_warden, sm_unwarden, (?sm_vetowarden)
-
-Add VIP queue skip
+[x] Add commands
+[x] Add convars
+[ ] --> Add text (localisation)
+[x] Add enable/disable
+[ ] List/Admin control
+[~] Override sm_warden, sm_unwarden, (?sm_vetowarden)
+[ ] Add VIP queue skip
 /*
 
 /* Includes */
