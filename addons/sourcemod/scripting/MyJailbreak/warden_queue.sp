@@ -71,6 +71,10 @@ public void OnPluginStart() {
 
   // commands + convars + autoexec ...
 
+  /* Client Commands */
+  RegConsoleCmd("sm_warden", Command_JoinWardenQueue, "Join the warden queue");
+  RegConsoleCmd("sm_unwarden", Command_LeaveWardenQueue, "Step down as warden and leave the warden queue");
+
   /* AutoExecConfig */
   AutoExecConfig_SetFile("Warden_Queue", "MyJailbreak");
   AutoExecConfig_SetCreateFile(true);
@@ -97,15 +101,29 @@ public void OnPluginStart() {
 /* Commands */
 
 public Action Command_LeaveWardenQueue(int client, int args) {
+  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!gc_bPlugin.BoolValue) return Plugin_Handled;
+
+  warden_remove(client); /* This checks whether client is warden and removes if he is */
+
+  RemovePlayerFromWardenQueue(client);
 
   return Plugin_Handled;
 }
 
 public Action Command_JoinWardenQueue(int client, int args) {
   if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   if (GetClientTeam(client) != CS_TEAM_CT) {
     /* Must be CT to join warden queue */
+    if (!warden_exist()) {
+      /* No current warden so skip queue */
+      warden_set(client);
+    } else {
+      /* Check VIP */
+      AddPlayerToWardenQueue(client);
+    }
   }
 
   return Plugin_Handled;
@@ -125,7 +143,7 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool bDontBroa
   /*
   Check if client is next in queue / set as warden...
   */
-  if (client == g_iNextWarden || g_iNextWarden = -2) {
+  if (client == g_iNextWarden || ShouldChooseRandomWarden()) {
     /* This client should be the warden */
 
     if (!warden_exist()) warden_set(client);
@@ -167,10 +185,24 @@ public void AddPlayerToWardenQueue(int client) {
   }
 }
 
+public bool IsPlayerInWardenQueue(int client) {
+  int iIndex = FindValueInArray(g_aWardenQueue, client);
+
+  return iIndex != -1;
+}
+
+bool ShouldChooseRandomWarden() {
+  return gc_bEmptyRandomWarden && g_iNextWarden == -2;
+}
+
 /* Forwards */
 
 public void OnClientDisconnect_Post(int client) {
   RemovePlayerFromWardenQueue(client);
+}
+
+public void warden_OnWardenRemoved(int client) {
+  /* Set new warden for the round */
 }
 
 /* Stocks */
