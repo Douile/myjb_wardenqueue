@@ -1,0 +1,3 @@
+[submodule ".\\submodules\\MyJailbreak"]
+	path = .\\submodules\\MyJailbreak
+	url = https://github.com/shanapu/MyJailbreak.git
