@@ -205,6 +205,19 @@ public void warden_OnWardenRemoved(int client) {
   /* Set new warden for the round */
 }
 
+public void OnAllPluginsLoaded() {
+  gc_bWarden = FindConVar("sm_warden_enable");
+  SetConVarString(gc_bWarden, "0", true, false);
+  HookConvarChange(gc_bWarden, WardenEnabled);
+}
+
+/* ConVarChanges */
+
+void WardenEnabled(ConVar convar, const char[] oldValue, const char[] newValue) {
+  if (!StrEqual(newValue,"0"))
+    SetConVarString(convar, "0", true, false);
+}
+
 /* Stocks */
 
 stock bool RemovePlayerFromWardenQueue(int client) {
