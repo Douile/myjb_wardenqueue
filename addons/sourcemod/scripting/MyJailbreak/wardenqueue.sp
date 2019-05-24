@@ -76,6 +76,7 @@ public void OnPluginStart() {
   RegConsoleCmd("sm_unwarden", Command_LeaveWardenQueue, "Step down as warden and leave the warden queue");
   AddCommandListener(CommandListener_JoinWardenQueue,"sm_warden");
   AddCommandListener(CommandListener_LeaveWardenQueue,"sm_unwarden");
+  AddCommandListener(CommandListener_Log);
 
   /* AutoExecConfig */
   AutoExecConfig_SetFile("Warden_Queue", "MyJailbreak");
@@ -179,12 +180,14 @@ public Action Event_RoundEnd_Post(Event event, const char[] szName, bool bDontBr
 
 /* Functions */
 
-public void AddPlayerToWardenQueue(int client) {
+ int AddPlayerToWardenQueue(int client) {
   int iIndex = FindValueInArray(g_aWardenQueue, client);
 
   if (iIndex == -1) {
     iIndex = PushArrayCell(g_aWardenQueue, client);
   }
+
+  return iIndex;
 }
 
 public bool IsPlayerInWardenQueue(int client) {
