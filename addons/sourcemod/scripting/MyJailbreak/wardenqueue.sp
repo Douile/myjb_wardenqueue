@@ -59,7 +59,7 @@ Handle g_aWardenQueue;
 int g_iNextWarden;
 
 /* Plugin info */
-#define PLUGIN_VERSION "0.1"
+#define PLUGIN_VERSION "0.2"
 
 public Plugin myinfo = {
   name = "Warden Queue",
