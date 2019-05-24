@@ -106,6 +106,24 @@ public void OnPluginStart() {
 }
 
 
+/* Command Listeners */
+
+public Action CommandListener_JoinWardenQueue(int client, const char[] command, int argc) {
+  Command_JoinWardenQueue(client, argc);
+  return Plugin_Stop;
+}
+
+public Action CommandListener_LeaveWardenQueue(int client, const char[] command, int argc) {
+  Command_LeaveWardenQueue(client, argc);
+  return Plugin_Stop;
+}
+
+public Action CommandListener_Log(int client, const char[] command, int argc) {
+  if (!IsValidClient(client, true, true)) return Plugin_Continue;
+  PrintToServer("Command (%d): %s",argc,command);
+  return Plugin_Continue;
+}
+
 /* Commands */
 
 public Action Command_LeaveWardenQueue(int client, int args) {
@@ -243,11 +261,6 @@ public void OnClientDisconnect_Post(int client) {
 
 public void warden_OnWardenRemoved(int client) {
   /* Set new warden for the round */
-}
-
-public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
-    Command_LeaveWardenQueue(client,0);
-    return Plugin_Stop;
 }
 
 /* Stocks */
