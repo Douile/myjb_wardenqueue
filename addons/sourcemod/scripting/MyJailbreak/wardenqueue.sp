@@ -62,7 +62,7 @@ int g_iNextWarden;
 #define PLUGIN_VERSION "0.2"
 
 public Plugin myinfo = {
-  name = "Warden Queue",
+  name = "MyJailbreak - Warden Queue",
   author = "Douile",
   version = PLUGIN_VERSION
 };
