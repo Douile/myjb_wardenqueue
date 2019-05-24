@@ -1,0 +1,12 @@
+"Phrases"
+{
+  "warden_joinqueue"
+  {
+    "#format" "{1:i}"
+    "en"  "You have {green}successfully{default} joined the warden queue in position {purple}#{1}{default}"
+  }
+  "admin_listqueue"
+  {
+    "en"  "Players currently in the warden queue"
+  }
+}
