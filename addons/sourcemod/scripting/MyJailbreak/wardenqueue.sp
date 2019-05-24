@@ -36,6 +36,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
+#include <autoexecconfig>
 #include <warden>
 #include <mystocks>
 #include <myjailbreak>
@@ -69,7 +70,7 @@ public Plugin myinfo = {
 /* Start */
 public void OnPluginStart() {
 
-  // commands + convars + autoexec ...
+  LoadTranslations("MyJailbreak.WardenQueue.phrases");
 
   /* Client Commands */
   RegConsoleCmd("sm_warden", Command_JoinWardenQueue, "Join the warden queue");
