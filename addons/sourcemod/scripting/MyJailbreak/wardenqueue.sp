@@ -29,7 +29,7 @@
 [~] Override sm_warden, sm_unwarden, (?sm_vetowarden)
 [ ] Add VIP queue skip
 [ ] Chat commands
-/*
+*/
 
 /* Includes */
 #include <sourcemod>
@@ -120,7 +120,7 @@ public Action Command_JoinWardenQueue(int client, int args) {
     /* Must be CT to join warden queue */
     if (!warden_exist()) {
       /* No current warden so skip queue */
-      warden_set(client);
+      warden_set(client, client);
     } else {
       /* Check VIP */
       AddPlayerToWardenQueue(client);
@@ -147,7 +147,7 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool bDontBroa
   if (client == g_iNextWarden || ShouldChooseRandomWarden()) {
     /* This client should be the warden */
 
-    if (!warden_exist()) warden_set(client);
+    if (!warden_exist()) warden_set(client, client);
     g_iNextWarden = -1;
   }
 
@@ -209,7 +209,7 @@ public void warden_OnWardenRemoved(int client) {
 public void OnAllPluginsLoaded() {
   gc_bWarden = FindConVar("sm_warden_enable");
   SetConVarString(gc_bWarden, "0", true, false);
-  HookConvarChange(gc_bWarden, WardenEnabled);
+  HookConVarChange(gc_bWarden, WardenEnabled);
 }
 
 /* ConVarChanges */
