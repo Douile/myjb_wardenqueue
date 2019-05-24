@@ -108,9 +108,11 @@ public Action Command_LeaveWardenQueue(int client, int args) {
   if (!IsValidClient(client, true, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
-  warden_remove(client); /* This checks whether client is warden and removes if he is */
+  warden_removed(client); /* This checks whether client is warden and removes if he is */
 
   RemovePlayerFromWardenQueue(client);
+
+  CReplyToCommand(client,"Left warden queue");
 
   return Plugin_Handled;
 }
