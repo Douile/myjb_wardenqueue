@@ -36,10 +36,11 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
+#include <colors>
 #include <autoexecconfig>
+#include <myjailbreak>
 #include <warden>
 #include <mystocks>
-#include <myjailbreak>
 
 /* Compiler options */
 #pragma semicolon 1
@@ -210,6 +211,9 @@ public void warden_OnWardenRemoved(int client) {
   /* Set new warden for the round */
 }
 
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
+    Command_LeaveWardenQueue(client,0);
+    return Plugin_Stop;
 }
 
 /* Stocks */
