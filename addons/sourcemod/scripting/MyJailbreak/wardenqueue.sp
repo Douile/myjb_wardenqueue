@@ -84,7 +84,7 @@ public void OnPluginStart() {
   AutoExecConfig_SetCreateFile(true);
 
   /* ConVars */
-  AutoExecConfig_CreateConVar("sm_wardenqueue_version", PLUGIN_VERSION, "The version of this plugin", FCVAR_SPONLY|FCVAR_REPLICATED,FCVAR_NOTIFY|FCVAR_DONTRECORD);
+  AutoExecConfig_CreateConVar("sm_wardenqueue_version", PLUGIN_VERSION, "The version of this plugin", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
   gc_bPlugin = AutoExecConfig_CreateConVar("sm_wardenqueue_enable","1","0 - disable, 1 - enable", _, true, 0.0, true, 1.0);
   gc_bRemoveTemp = AutoExecConfig_CreateConVar("sm_wardenqueue_removetemporary","1","0/1 - remove wardens set after a warden death from the queue", _, true, 0.0, true, 1.0);
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
