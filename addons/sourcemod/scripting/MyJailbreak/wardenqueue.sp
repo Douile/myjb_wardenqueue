@@ -50,7 +50,6 @@
 ConVar gc_bPlugin;
 ConVar gc_bRemoveTemp;
 ConVar gc_bEmptyRandomWarden;
-ConVar gc_bWarden;
 
 /* Handles */
 Handle g_aWardenQueue;
@@ -75,6 +74,8 @@ public void OnPluginStart() {
   /* Client Commands */
   RegConsoleCmd("sm_warden", Command_JoinWardenQueue, "Join the warden queue");
   RegConsoleCmd("sm_unwarden", Command_LeaveWardenQueue, "Step down as warden and leave the warden queue");
+  AddCommandListener(CommandListener_JoinWardenQueue,"sm_warden");
+  AddCommandListener(CommandListener_LeaveWardenQueue,"sm_unwarden");
 
   /* AutoExecConfig */
   AutoExecConfig_SetFile("Warden_Queue", "MyJailbreak");
@@ -206,17 +207,6 @@ public void warden_OnWardenRemoved(int client) {
   /* Set new warden for the round */
 }
 
-public void OnAllPluginsLoaded() {
-  gc_bWarden = FindConVar("sm_warden_enable");
-  SetConVarString(gc_bWarden, "0", true, false);
-  HookConVarChange(gc_bWarden, WardenEnabled);
-}
-
-/* ConVarChanges */
-
-void WardenEnabled(ConVar convar, const char[] oldValue, const char[] newValue) {
-  if (!StrEqual(newValue,"0"))
-    SetConVarString(convar, "0", true, false);
 }
 
 /* Stocks */
