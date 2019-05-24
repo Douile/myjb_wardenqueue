@@ -28,6 +28,7 @@
 [ ] List/Admin control
 [~] Override sm_warden, sm_unwarden, (?sm_vetowarden)
 [ ] Add VIP queue skip
+[ ] Chat commands
 /*
 
 /* Includes */
