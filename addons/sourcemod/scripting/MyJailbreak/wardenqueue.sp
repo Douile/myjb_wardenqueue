@@ -79,6 +79,10 @@ public void OnPluginStart() {
   AddCommandListener(CommandListener_LeaveWardenQueue,"sm_unwarden");
   AddCommandListener(CommandListener_Log);
 
+
+  /* Admin Commands */
+  RegAdminCmd("sm_listqueue", AdminCommand_ListQueue, ADMFLAG_GENERIC);
+
   /* AutoExecConfig */
   AutoExecConfig_SetFile("Warden_Queue", "MyJailbreak");
   AutoExecConfig_SetCreateFile(true);
@@ -138,7 +142,27 @@ public Action Command_JoinWardenQueue(int client, int args) {
 
   return Plugin_Handled;
 }
+
+public Action AdminCommand_ListQueue(int client, int args) {
+  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!gc_bPlugin.BoolValue) return Plugin_Handled;
+
+  int length = GetArraySize(g_aWardenQueue);
+  int size = MAX_NAME_LENGTH*length;
+  char[] text = new char[size];
+
+  for (int i=0;i<length;i++) {
+    char name[MAX_NAME_LENGTH];
+
+    int qClient = GetArrayCell(g_aWardenQueue, i);
+    GetClientName(qClient, name, MAX_NAME_LENGTH);
+
+    Format(name, MAX_NAME_LENGTH, "%d. %s\n", i+1, name); // Bad?
+
+    StrCat(text, size, name);
   }
+
+  CReplyToCommand(client, "%t\n%s", "admin_listqueue", text);
 
   return Plugin_Handled;
 }
