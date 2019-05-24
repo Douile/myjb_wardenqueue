@@ -121,15 +121,23 @@ public Action Command_JoinWardenQueue(int client, int args) {
   if (!IsValidClient(client, true, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
-  if (GetClientTeam(client) != CS_TEAM_CT) {
+  if (GetClientTeam(client) == CS_TEAM_CT) {
     /* Must be CT to join warden queue */
     if (!warden_exist()) {
       /* No current warden so skip queue */
-      warden_set(client, client);
+      warden_set(client, 0);
+      CReplyToCommand(client,"Set u as warden");
     } else {
       /* Check VIP */
-      AddPlayerToWardenQueue(client);
+      int pos = AddPlayerToWardenQueue(client)+1;
+      CReplyToCommand(client, "%t", "warden_joinqueue", pos);
     }
+  } else {
+    CReplyToCommand(client,"U must be CT");
+  }
+
+  return Plugin_Handled;
+}
   }
 
   return Plugin_Handled;
