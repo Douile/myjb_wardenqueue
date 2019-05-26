@@ -1,12 +1,56 @@
 "Phrases"
 {
-  "warden_joinqueue"
+  "queue_joinqueue"
   {
     "#format" "{1:i}"
-    "en"  "You have {green}successfully{default} joined the warden queue in position {purple}#{1}{default}"
+    "en"  "You have {green}joined{default} the warden queue in position {purple}#{1}{default}"
   }
-  "admin_listqueue"
+  "queue_skipped"
+  {
+    "en"  "There was no active warden, you've skipped the queue"
+  }
+  "queue_notguard"
+  {
+    "en"  "You must be a {blue}guard{default} to join the warden queue"
+  }
+  "queue_inqueue"
+  {
+    "#format" "{1:i}"
+    "en"  "You are in position {purple}#{1}{default}"
+  }
+  "queue_left"
+  {
+    "en"  "You have {lightred}left{default} the warden queue"
+  }
+  "queue_not_left"
+  {
+    "en"  "You must be in the warden queue to leave it {lightred}-{default}_{lightred}-{default}"
+  }
+  "queue_retire"
+  {
+    "en"  "You have resigned as warden"
+  }
+  "queue_listqueue"
   {
     "en"  "Players currently in the warden queue"
+  }
+  "queue_emptyqueue"
+  {
+    "en"  "The queue is currently empty"
+  }
+  "queue_next"
+  {
+    "#format" "{1:s},{2:i}"
+    "en"  "The next warden is {purple}{1}{default} {green}{2}{default} players are in the queue"
+  }
+  "queue_random"
+  {
+    "#format" "{1:s}"
+    "en"  "The queue was empty so the random warden {purple}{1}{default} was chosen"
+  }
+  "queue_adminremove"
+  {
+    "#format" "{1:s},{2:s}"
+    "en"  "Admin {purple}{1}{default} removed {purple}{2}{default} from the warden queue"
   }
 }
