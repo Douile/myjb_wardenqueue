@@ -23,10 +23,10 @@
 /* TODO
 [x] Add commands
 [x] Add convars
-[~] --> Add text (localisation)
+[x] --> Add text (localisation)
 [x] Add enable/disable
-[ ] List/Admin control
-[~] Override sm_warden, sm_unwarden, (?sm_vetowarden)
+[x] List/Admin control
+[x] Override sm_warden, sm_unwarden, (?sm_vetowarden)
 [x] Add VIP queue skip
 [x] Chat commands
 */
@@ -65,14 +65,11 @@ Handle g_aWardenQueue;
 /* Strings */
 char gs_prefix[64] = "[{green}MyJB.Queue{default}]";
 
-/* Integers */
-int g_iNextWarden;
-
 /* Booleans */
 bool g_bRoundActive = false;
 
 /* Plugin info */
-#define PLUGIN_VERSION "0.4"
+#define PLUGIN_VERSION "0.5"
 
 public Plugin myinfo = {
   name = "MyJailbreak - Warden Queue",
@@ -92,9 +89,9 @@ public void OnPluginStart() {
   AddCommandListener(CommandListener_JoinWardenQueue,"sm_w");
   AddCommandListener(CommandListener_LeaveWardenQueue,"sm_unwarden");
   AddCommandListener(CommandListener_LeaveWardenQueue,"sm_uw");
-  // AddCommandListener(CommandListener_Log);
-  RegConsoleCmd("sm_listqueue", Command_ListQueue, "Print out current queue for warden");
-  RegConsoleCmd("sm_lq", Command_ListQueue, "Print out current queue for warden");
+  RegConsoleCmd("sm_lwq", Command_LeaveWardenQueue, "Step down as warden and leave the warden queue");
+  RegConsoleCmd("sm_viewwardenqueue", Command_ListQueue, "Print out current queue for warden");
+  RegConsoleCmd("sm_vwq", Command_ListQueue, "Print out current queue for warden");
 
 
   /* Admin Commands */
@@ -157,12 +154,6 @@ public Action CommandListener_JoinWardenQueue(int client, const char[] command, 
 public Action CommandListener_LeaveWardenQueue(int client, const char[] command, int argc) {
   Command_LeaveWardenQueue(client, argc);
   return Plugin_Stop;
-}
-
-public Action CommandListener_Log(int client, const char[] command, int argc) {
-  if (!IsValidClient(client, true, true)) return Plugin_Continue;
-  PrintToServer("%s Command (%d): %s", gs_prefix, argc, command);
-  return Plugin_Continue;
 }
 
 /* Commands */
@@ -284,7 +275,6 @@ public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int 
 
 public Action Event_PlayerTeam_Post(Event event, const char[] szName, bool bDontBroadcast) {
   int client = GetClientOfUserId(event.GetInt("userid"));
-  PrintToServer("%d changed to %d", client, event.GetInt("team"));
 
   /* If player switches from CT remove them from warden queue */
   if (event.GetInt("team") != CS_TEAM_CT) {
@@ -345,10 +335,6 @@ bool IsPlayerInWardenQueue(int client) {
 
 bool IsPlayerVIP(int client) {
   return MyJailbreak_CheckVIPFlags(client, "sm_wqueue_flag", gc_sAdminFlag, "sm_wqueue_flag");
-}
-
-bool ShouldChooseRandomWarden() {
-  return gc_bEmptyRandomWarden && g_iNextWarden == -2;
 }
 
 int ScanValidWarden() {
