@@ -10,8 +10,8 @@ _Please ignore my horrible use of git submodules on this repo :)_
 | Command | Action |
 | ------: | :----- |
 | `sm_w`, `sm_warden` | Join the warden queue or become warden |
-| `sm_uw`, `sm_unwarden` | Leave the warden queue or step down as warden |
-| `sm_lq`, `sm_listqueue` | Print out warden queue |
+| `sm_uw`, `sm_unwarden`, `sm_lwq` | Leave the warden queue or step down as warden |
+| `sm_vwq`, `sm_viewwardenqueue` | Print out warden queue |
 
 **Admin commands**
 
