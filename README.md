@@ -1,8 +1,6 @@
-# GFL-Clan MyJailbreak warden queue
+# MyJailbreak warden queue
 
-**Status**: Testing
-
-_Please ignore my horrible use of git submodules on this repo :)_
+This plugin replaces the MyJailbreak command `!warden` with a queue for warden, this means all players will be able to become warden in turn.
 
 ## Commands
 *For all commands replace `sm_` with `!` or `/` to use them as chat commands*
@@ -35,8 +33,8 @@ This plugin forces the following cvars to a value of `0` in order to ensure it w
 - `sm_warden_become`
 - `sm_warden_choice`
 
+_This plugin was created for [GFLClan](https://gflclan.com/)_
+
 ## Some links
-- [Trello](https://trello.com/c/hihjTVpq/31-warden-queue-for-jb)
-- [Forum post](https://gflclan.com/forums/topic/36417-csgo-jb-a-few-minor-requests/)
 - [My jailbreak](https://github.com/shanapu/MyJailbreak)
 - [LICENSE](./LICENSE)
