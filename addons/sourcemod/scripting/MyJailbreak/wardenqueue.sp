@@ -20,17 +20,6 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* TODO
-[x] Add commands
-[x] Add convars
-[x] --> Add text (localisation)
-[x] Add enable/disable
-[x] List/Admin control
-[x] Override sm_warden, sm_unwarden, (?sm_vetowarden)
-[x] Add VIP queue skip
-[x] Chat commands
-*/
-
 /* Includes */
 #include <sourcemod>
 #include <sdktools>
