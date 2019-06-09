@@ -40,8 +40,9 @@
 ConVar gc_bPlugin;
 ConVar gc_bRemoveTemp;
 ConVar gc_bEmptyRandomWarden;
-ConVar gc_sAdminFlag;
 ConVar gc_bVIPSkip;
+ConVar gc_sAdminFlag;
+ConVar gc_sPrefix
 
 /* Third-party ConVars */
 ConVar gtc_bChooseRandom;
@@ -53,7 +54,8 @@ ConVar gtc_bWadenChoice;
 Handle g_aWardenQueue;
 
 /* Strings */
-char gs_prefix[64] = "[{green}MyJB.Queue{default}]";
+#define MAX_PREFIX_LENGTH 64
+char gs_prefix[MAX_PREFIX_LENGTH] = "[{green}MyJB.Queue{default}]";
 
 /* Booleans */
 bool g_bRoundActive = false;
@@ -92,12 +94,13 @@ public void OnPluginStart() {
   AutoExecConfig_SetCreateFile(true);
 
   /* ConVars */
-  AutoExecConfig_CreateConVar("sm_wardenqueue_version", PLUGIN_VERSION, "The version of this plugin", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+  AutoExecConfig_CreateConVar("sm_wardenqueue_version", PLUGIN_VERSION, "Version of MyJB wardenqueue", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
   gc_bPlugin = AutoExecConfig_CreateConVar("sm_wardenqueue_enable","1","0 - disable, 1 - enable", _, true, 0.0, true, 1.0);
   gc_bRemoveTemp = AutoExecConfig_CreateConVar("sm_wardenqueue_removetemporary","1","0/1 - remove wardens set after a warden death from the queue", _, true, 0.0, true, 1.0);
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
   gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
   gc_bVIPSkip = AutoExecConfig_CreateConVar("sm_wardenqueue_vipskip","1","0/1 - allow VIPs to skip to the front of warden queue", _, true, 0.0, true, 1.0);
+  gc_sPrefix = AutoExecConfig_CreateConVar("sm_wardenqueue_prefix","MyJB.Queue","prefix for warden queue messages")
 
   /* AutoExecConfig finalize */
   AutoExecConfig_ExecuteFile();
@@ -126,12 +129,21 @@ public void OnAllPluginsLoaded() {
   gtc_bWadenChoice = FindConVar("sm_warden_choice");
   SetConVarString(gtc_bWadenChoice, "0", true, false);
   HookConVarChange(gtc_bWadenChoice, ConVarChangeFalse);
+
+  char prefix[MAX_PREFIX_LENGTH];
+  GetConVarString(gc_sPrefix, prefix, MAX_PREFIX_LENGTH)
+  UpdatePrefix(prefix);
+  HookConVarChange(gc_sPrefix, ConVarChangePrefix);
 }
 
 public void ConVarChangeFalse(ConVar cvar, const char[] oldValue, const char[] newValue) {
   if (!StrEqual(newValue, "0")) {
     SetConVarString(cvar, "0", true, false);
   }
+}
+
+public void ConVarChangePrefix(ConVar cvar, const char[] oldValue, const char[] newValue) {
+  UpdatePrefix(newValue);
 }
 
 
@@ -398,6 +410,10 @@ void SetWarden(int target) {
     WritePackCell(datapack, 0);
     CreateTimer(0.2, Timer_SetWarden, datapack, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
   }
+}
+
+void UpdatePrefix(const char[] prefix) {
+  Format(gs_prefix,MAX_PREFIX_LENGTH,"[{green}%s{default}]",prefix);
 }
 
 /* Timers */
