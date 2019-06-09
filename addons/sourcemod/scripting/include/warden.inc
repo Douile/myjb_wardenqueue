@@ -31,7 +31,7 @@ public __pl_warden_SetNTVOptional()
 /*********************************************************
  * Called everytime the warden position become free.
  * On wardens dead, disconnect, removed...
- * 
+ *
  * @param client		The client who was warden
  * @NoReturn
  *********************************************************/
@@ -83,4 +83,4 @@ native void warden_set(int client, int caller);
  * @param client		The warden client to remove
  * @NoReturn
  *********************************************************/
-native void warden_remove(int client);
+native void warden_removed(int client);
