@@ -41,6 +41,7 @@ ConVar gc_bPlugin;
 ConVar gc_bRemoveTemp;
 ConVar gc_bEmptyRandomWarden;
 ConVar gc_sAdminFlag;
+ConVar gc_bVIPSkip;
 
 /* Third-party ConVars */
 ConVar gtc_bChooseRandom;
@@ -96,6 +97,7 @@ public void OnPluginStart() {
   gc_bRemoveTemp = AutoExecConfig_CreateConVar("sm_wardenqueue_removetemporary","1","0/1 - remove wardens set after a warden death from the queue", _, true, 0.0, true, 1.0);
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
   gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
+  gc_bVIPSkip = AutoExecConfig_CreateConVar("sm_wardenqueue_vipskip","1","0/1 - allow VIPs to skip to the front of warden queue", _, true, 0.0, true, 1.0);
 
   /* AutoExecConfig finalize */
   AutoExecConfig_ExecuteFile();
@@ -290,7 +292,7 @@ public Action Event_RoundStartPost(Event event, const char[] szName, bool bDontB
   int iIndex = FindValueInArray(g_aWardenQueue, client);
 
   if (iIndex == -1) {
-    if (IsPlayerVIP(client)) {
+    if (IsPlayerVIP(client) && gc_bVIPSkip.BoolValue) {
       int length = GetArraySize(g_aWardenQueue);
       if (length > 0) {
         for (int i=0;i<length;i++) {
