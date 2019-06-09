@@ -53,4 +53,8 @@
     "#format" "{1:s},{2:s}"
     "en"  "Admin {purple}{1}{default} removed {purple}{2}{default} from the warden queue"
   }
+  "queue_vip"
+  {
+    "en"  "Thank you for being a {purple}VERY{default} important person, you have skipped the queue"
+  }
 }

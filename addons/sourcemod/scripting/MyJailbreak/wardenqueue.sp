@@ -293,6 +293,7 @@ public Action Event_RoundStartPost(Event event, const char[] szName, bool bDontB
 
   if (iIndex == -1) {
     if (IsPlayerVIP(client) && gc_bVIPSkip.BoolValue) {
+      CPrintToChat(client,"%s %t", gs_prefix, "queue_vip");
       int length = GetArraySize(g_aWardenQueue);
       if (length > 0) {
         for (int i=0;i<length;i++) {
