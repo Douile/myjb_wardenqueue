@@ -42,7 +42,7 @@ ConVar gc_bRemoveTemp;
 ConVar gc_bEmptyRandomWarden;
 ConVar gc_bVIPSkip;
 ConVar gc_sAdminFlag;
-ConVar gc_sPrefix
+ConVar gc_sPrefix;
 
 /* Third-party ConVars */
 ConVar gtc_bChooseRandom;
@@ -100,7 +100,7 @@ public void OnPluginStart() {
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
   gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
   gc_bVIPSkip = AutoExecConfig_CreateConVar("sm_wardenqueue_vipskip","1","0/1 - allow VIPs to skip to the front of warden queue", _, true, 0.0, true, 1.0);
-  gc_sPrefix = AutoExecConfig_CreateConVar("sm_wardenqueue_prefix","MyJB.Queue","prefix for warden queue messages")
+  gc_sPrefix = AutoExecConfig_CreateConVar("sm_wardenqueue_prefix","MyJB.Queue","prefix for warden queue messages");
 
   /* AutoExecConfig finalize */
   AutoExecConfig_ExecuteFile();
@@ -131,7 +131,7 @@ public void OnAllPluginsLoaded() {
   HookConVarChange(gtc_bWadenChoice, ConVarChangeFalse);
 
   char prefix[MAX_PREFIX_LENGTH];
-  GetConVarString(gc_sPrefix, prefix, MAX_PREFIX_LENGTH)
+  GetConVarString(gc_sPrefix, prefix, MAX_PREFIX_LENGTH);
   UpdatePrefix(prefix);
   HookConVarChange(gc_sPrefix, ConVarChangePrefix);
 }
@@ -166,7 +166,7 @@ public Action Command_LeaveWardenQueue(int client, int args) {
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   if (warden_iswarden(client)) {
-    warden_removed(client); /* This checks whether client is warden and removes if he is */
+    warden_remove(client); /* This checks whether client is warden and removes if he is */
     CReplyToCommand(client, "%s %t", gs_prefix, "queue_retire");
   } else if (IsPlayerInWardenQueue(client)) {
     RemovePlayerFromWardenQueue(client);
