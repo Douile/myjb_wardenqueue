@@ -29,6 +29,7 @@
 #include <autoexecconfig>
 #include <myjailbreak>
 #include <warden>
+#include <myjbwarden>
 #include <mystocks>
 
 /* Compiler options */
@@ -199,7 +200,14 @@ public Action Command_JoinWardenQueue(int client, int args) {
       }
     }
   } else {
-    CReplyToCommand(client, "%s %t", gs_prefix, "queue_notguard");
+    int iWarden = warden_get();
+    if (IsValidClient(iWarden, true, true)) {
+      char sWarden[MAX_NAME_LENGTH];
+      GetClientName(iWarden, sWarden, MAX_NAME_LENGTH);
+      CReplyToCommand(client, "%s %t", gs_prefix, "queue_currentwarden", sWarden);
+    } else {
+      CReplyToCommand(client "%s %t", gs_prefix, "queue_nowarden");
+    }
   }
 
   return Plugin_Handled;

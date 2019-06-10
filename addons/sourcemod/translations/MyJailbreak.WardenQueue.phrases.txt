@@ -57,4 +57,13 @@
   {
     "en"  "Thank you for being a {purple}VERY{default} important person, you have skipped the queue"
   }
+  "queue_currentwarden"
+  {
+    "#format" "{1:s}"
+    "en"  "The current warden in {purple}{1}{default}"
+  }
+  "queue_nowarden"
+  {
+    "en"  "There is no current warden"
+  }
 }
