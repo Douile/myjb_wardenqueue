@@ -25,6 +25,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
+#include <clientprefs>
 #include <colors>
 #include <autoexecconfig>
 #include <myjailbreak>
@@ -61,8 +62,9 @@ Handle g_aWardenQueue;
 /* Strings */
 #define MAX_PREFIX_LENGTH 64
 char gs_prefix[MAX_PREFIX_LENGTH] = "[{green}MyJB.Queue{default}]";
-#define STRING_TRUE "true"
-#define STRING_FALSE = "false"
+#define BOOL_STRING_LEN 8
+char STRING_TRUE[BOOL_STRING_LEN] = "true";
+char STRING_FALSE[BOOL_STRING_LEN] = "false";
 
 /* Booleans */
 bool g_bRoundActive = false;
@@ -92,7 +94,7 @@ public void OnPluginStart() {
   RegConsoleCmd("sm_viewwardenqueue", Command_ListQueue, "Print out current queue for warden");
   RegConsoleCmd("sm_vwq", Command_ListQueue, "Print out current queue for warden");
   RegConsoleCmd("sm_aq", Command_AutoQueue, "Toggle auto warden queue prefence, if on guards will also join the queue when enabled");
-  RegConsoleCmd("sm_autoqueue", Command_AutoQueue, "Toggle auto warden queue prefence, if on guards will also join the queue when enabled")
+  RegConsoleCmd("sm_autoqueue", Command_AutoQueue, "Toggle auto warden queue prefence, if on guards will also join the queue when enabled");
 
 
   /* Admin Commands */
@@ -214,7 +216,7 @@ public Action Command_JoinWardenQueue(int client, int args) {
       } else {
         int pos = AddPlayerToWardenQueue(client)+1;
         if (pos > -1) CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinqueue", pos);
-        else CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinerror")
+        else CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinerror");
       }
     }
   } else {
@@ -224,7 +226,7 @@ public Action Command_JoinWardenQueue(int client, int args) {
       GetClientName(iWarden, sWarden, MAX_NAME_LENGTH);
       CReplyToCommand(client, "%s %t", gs_prefix, "queue_currentwarden", sWarden);
     } else {
-      CReplyToCommand(client "%s %t", gs_prefix, "queue_nowarden");
+      CReplyToCommand(client, "%s %t", gs_prefix, "queue_nowarden");
     }
   }
 
@@ -501,9 +503,8 @@ stock bool RemovePlayerFromWardenQueue(int client) {
 }
 
 stock bool GetClientCookieBool(int client, Handle cookie) {
-  int bfSize = 10;
-  char buf[bfSize];
-  GetClientCookie(client, cookie, buf, bfSize);
+  char buf[BOOL_STRING_LEN];
+  GetClientCookie(client, cookie, buf, BOOL_STRING_LEN);
   return StrContains(buf,"true",false) || strcmp(buf,"1");
 }
 
