@@ -68,7 +68,7 @@ char gs_prefix[MAX_PREFIX_LENGTH] = "[{green}MyJB.Queue{default}]";
 bool g_bRoundActive = false;
 
 /* Plugin info */
-#define PLUGIN_VERSION "0.6"
+#define PLUGIN_VERSION "0.7"
 
 public Plugin myinfo = {
   name = "MyJailbreak - Warden Queue",
