@@ -78,7 +78,7 @@
   {
     "en"  "Auto queue has been {lightred}disabled{default}"
   }
-  "autoqueue"
+  "autoqueue_join"
   {
     "#format" "{1:i}"
     "en"  "Auto queue added you to the queue in position {purple}#{1}{default}"
