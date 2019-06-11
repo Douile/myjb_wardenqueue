@@ -42,6 +42,7 @@ ConVar gc_bPlugin;
 ConVar gc_bRemoveTemp;
 ConVar gc_bEmptyRandomWarden;
 ConVar gc_bVIPSkip;
+ConVar gc_bAutoQueue;
 ConVar gc_sAdminFlag;
 ConVar gc_sPrefix;
 
@@ -51,12 +52,17 @@ ConVar gtc_bWardenStay;
 ConVar gtc_bWardenBecome;
 ConVar gtc_bWadenChoice;
 
+/* Cookies */
+Handle gC_autoQueue;
+
 /* Handles */
 Handle g_aWardenQueue;
 
 /* Strings */
 #define MAX_PREFIX_LENGTH 64
 char gs_prefix[MAX_PREFIX_LENGTH] = "[{green}MyJB.Queue{default}]";
+#define STRING_TRUE "true"
+#define STRING_FALSE = "false"
 
 /* Booleans */
 bool g_bRoundActive = false;
@@ -85,6 +91,8 @@ public void OnPluginStart() {
   RegConsoleCmd("sm_lwq", Command_LeaveWardenQueue, "Step down as warden and leave the warden queue");
   RegConsoleCmd("sm_viewwardenqueue", Command_ListQueue, "Print out current queue for warden");
   RegConsoleCmd("sm_vwq", Command_ListQueue, "Print out current queue for warden");
+  RegConsoleCmd("sm_aq", Command_AutoQueue, "Toggle auto warden queue prefence, if on guards will also join the queue when enabled");
+  RegConsoleCmd("sm_autoqueue", Command_AutoQueue, "Toggle auto warden queue prefence, if on guards will also join the queue when enabled")
 
 
   /* Admin Commands */
@@ -100,12 +108,16 @@ public void OnPluginStart() {
   gc_bRemoveTemp = AutoExecConfig_CreateConVar("sm_wardenqueue_removetemporary","1","0/1 - remove wardens set after a warden death from the queue", _, true, 0.0, true, 1.0);
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
   gc_bVIPSkip = AutoExecConfig_CreateConVar("sm_wardenqueue_vipskip","1","0/1 - allow VIPs to skip to the front of warden queue", _, true, 0.0, true, 1.0);
+  gc_bAutoQueue = AutoExecConfig_CreateConVar("sm_wardenqueue_autoqueue","1","0/1 - enable autoqueuing for guards", _, true, 0.0, true, 1.0);
   gc_sPrefix = AutoExecConfig_CreateConVar("sm_wardenqueue_prefix","MyJB.Queue","prefix for warden queue messages");
   gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
 
   /* AutoExecConfig finalize */
   AutoExecConfig_ExecuteFile();
   AutoExecConfig_CleanFile();
+
+  /* Cookies */
+  gC_autoQueue = RegClientCookie("wardenqueue_autoqueue","Automatically join the warden queue when playing as a guard", CookieAccess_Protected);
 
   /* Hooks */
   HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
@@ -173,6 +185,10 @@ public Action Command_LeaveWardenQueue(int client, int args) {
   } else if (IsPlayerInWardenQueue(client)) {
     RemovePlayerFromWardenQueue(client);
     CReplyToCommand(client, "%s %t", gs_prefix, "queue_left");
+    if (GetClientCookieBool(client, gC_autoQueue)) {
+      SetClientCookie(client, gC_autoQueue, STRING_FALSE);
+      CReplyToCommand(client, "%s %t", gs_prefix, "autoqueue_disabled");
+    }
   } else {
     CReplyToCommand(client, "%s %t", gs_prefix, "queue_not_left");
   }
@@ -197,7 +213,8 @@ public Action Command_JoinWardenQueue(int client, int args) {
         CReplyToCommand(client, "%s %t", gs_prefix, "queue_inqueue", iIndex+1);
       } else {
         int pos = AddPlayerToWardenQueue(client)+1;
-        CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinqueue", pos);
+        if (pos > -1) CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinqueue", pos);
+        else CReplyToCommand(client, "%s %t", gs_prefix, "queue_joinerror")
       }
     }
   } else {
@@ -234,6 +251,24 @@ public Action Command_ListQueue(int client, int args) {
   } else {
     CReplyToCommand(client, "%s %t", gs_prefix, "queue_emptyqueue");
   }
+
+  return Plugin_Handled;
+}
+
+public Action Command_AutoQueue(int client, int args) {
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
+  if (!gc_bPlugin.BoolValue || !gc_bAutoQueue.BoolValue) return Plugin_Handled;
+
+  bool currentValue = GetClientCookieBool(client, gC_autoQueue);
+  SetClientCookie(client, gC_autoQueue, currentValue ? STRING_FALSE : STRING_TRUE);
+
+  if (GetClientTeam(client) == CS_TEAM_CT) {
+    if (!currentValue) Command_JoinWardenQueue(client,0);
+  }
+
+  char locMessage[32];
+  locMessage = currentValue ? "autoqueue_disabled" : "autoqueue_enabled";
+  CReplyToCommand(client, "%s %t", gs_prefix, locMessage);
 
   return Plugin_Handled;
 }
@@ -289,7 +324,14 @@ public Action Event_PlayerTeam_Post(Event event, const char[] szName, bool bDont
   int client = GetClientOfUserId(event.GetInt("userid"));
 
   /* If player switches from CT remove them from warden queue */
-  if (event.GetInt("team") != CS_TEAM_CT) {
+  if (event.GetInt("team") == CS_TEAM_CT) {
+    if (gc_bAutoQueue.BoolValue) {
+      if (GetClientCookieBool(client, gC_autoQueue)) {
+        int pos = AddPlayerToWardenQueue(client);
+        if (pos > -1) CPrintToChat(client, "%s %t", gs_prefix, "autoqueue_join", pos+1);
+      }
+    }
+  } else {
     RemovePlayerFromWardenQueue(client);
     CPrintToChat(client, "%s %t", gs_prefix, "queue_left");
   }
@@ -365,8 +407,15 @@ void ChooseNextWarden(bool shouldRemove) {
 
     if (iWarden > -1) {
       int warden = GetArrayCell(g_aWardenQueue, 0);
-      if (shouldRemove)
+      if (shouldRemove) {
         RemoveFromArray(g_aWardenQueue, iWarden);
+        if (gc_bAutoQueue.BoolValue) {
+          if (GetClientCookieBool(warden, gC_autoQueue)) {
+            int pos = AddPlayerToWardenQueue(warden);
+            if (pos > -1) CPrintToChat(warden, "%s %t", gs_prefix, "autoqueue_join", pos+1);
+          }
+        }
+      }
 
       char wardenName[MAX_NAME_LENGTH];
       GetClientName(warden, wardenName, MAX_NAME_LENGTH);
@@ -389,23 +438,6 @@ void ChooseNextWarden(bool shouldRemove) {
       /* No valid guards */
     }
   }
-}
-
-int GetRandomPlayerEx(int team, bool alive) {
-  int[] clients = new int[MaxClients];
-  int clientCount;
-
-  for (int i = 1; i <= MaxClients; i++)	{
-    if (!IsValidClient(i, true, !alive))
-      continue;
-
-    if (GetClientTeam(i) != team)
-      continue;
-
-    clients[clientCount++] = i;
-  }
-
-  return (clientCount == 0) ? -1 : clients[GetRandomInt(0, clientCount-1)];
 }
 
 void SetWarden(int target) {
@@ -466,4 +498,28 @@ stock bool RemovePlayerFromWardenQueue(int client) {
   int iIndex = FindValueInArray(g_aWardenQueue, client);
   if (iIndex == -1) return;
   RemoveFromArray(g_aWardenQueue, iIndex);
+}
+
+stock bool GetClientCookieBool(int client, Handle cookie) {
+  int bfSize = 10;
+  char buf[bfSize];
+  GetClientCookie(client, cookie, buf, bfSize);
+  return StrContains(buf,"true",false) || strcmp(buf,"1");
+}
+
+stock int GetRandomPlayerEx(int team, bool alive) {
+  int[] clients = new int[MaxClients];
+  int clientCount;
+
+  for (int i = 1; i <= MaxClients; i++)	{
+    if (!IsValidClient(i, true, !alive))
+      continue;
+
+    if (GetClientTeam(i) != team)
+      continue;
+
+    clients[clientCount++] = i;
+  }
+
+  return (clientCount == 0) ? -1 : clients[GetRandomInt(0, clientCount-1)];
 }

@@ -5,6 +5,10 @@
     "#format" "{1:i}"
     "en"  "You have {green}joined{default} the warden queue in position {purple}#{1}{default}"
   }
+  "queue_joinerror"
+  {
+    "en"  "Unfortunately an {lightred}error{default} occured while adding you to the queue please try again"
+  }
   "queue_skipped"
   {
     "en"  "There was no active warden, you've skipped the queue"
@@ -65,5 +69,18 @@
   "queue_nowarden"
   {
     "en"  "There is no current warden"
+  }
+  "autoqueue_enabled"
+  {
+    "en"  "Auto queue has been {green}enabled{default}"
+  }
+  "autoqueue_disabled"
+  {
+    "en"  "Auto queue has been {lightred}disabled{default}"
+  }
+  "autoqueue"
+  {
+    "#format" "{1:i}"
+    "en"  "Auto queue added you to the queue in position {purple}#{1}{default}"
   }
 }
