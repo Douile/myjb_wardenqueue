@@ -473,18 +473,17 @@ public Action Timer_SetWarden(Handle timer, Handle datapack) {
   int current = ReadPackCell(datapack);
 
   if (!warden_exist()) {
-    if IsValidClient(IsValidClient(target,true,false)) warden_set(target, target);
+    if (IsValidClient(target,true,false)) warden_set(target, target);
     return Plugin_Stop;
   } else if (current < limit && IsValidClient(target,true,false)) {
-      ResetPack(datapack);
-      WritePackCell(datapack, target);
-      WritePackCell(datapack, limit);
-      WritePackCell(datapack, current + 1);
-    } else {
-      return Plugin_Stop;
-    }
+    ResetPack(datapack);
+    WritePackCell(datapack, target);
+    WritePackCell(datapack, limit);
+    WritePackCell(datapack, current + 1);
+    return Plugin_Continue;
+  } else {
+    return Plugin_Stop;
   }
-  return Plugin_Continue;
 }
 
 /* Forwards */
