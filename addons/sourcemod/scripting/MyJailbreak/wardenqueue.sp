@@ -181,18 +181,20 @@ public Action Command_LeaveWardenQueue(int client, int args) {
   if (!IsValidClient(client, false, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
-  if (warden_iswarden(client)) {
-    warden_removed(client); /* This checks whether client is warden and removes if he is */
-    CReplyToCommand(client, "%s %t", gs_prefix, "queue_retire");
-  } else if (IsPlayerInWardenQueue(client)) {
-    RemovePlayerFromWardenQueue(client);
-    CReplyToCommand(client, "%s %t", gs_prefix, "queue_left");
+  if (IsPlayerInWardenQueue(client)) {
     if (GetClientCookieBool(client, gC_autoQueue)) {
       SetClientCookie(client, gC_autoQueue, STRING_FALSE);
       CReplyToCommand(client, "%s %t", gs_prefix, "autoqueue_disabled");
     }
+    RemovePlayerFromWardenQueue(client);
+    CReplyToCommand(client, "%s %t", gs_prefix, "queue_left");
   } else {
     CReplyToCommand(client, "%s %t", gs_prefix, "queue_not_left");
+  }
+
+  if (warden_iswarden(client)) {
+    warden_removed(client); /* This checks whether client is warden and removes if he is */
+    CReplyToCommand(client, "%s %t", gs_prefix, "queue_retire");
   }
 
   return Plugin_Handled;
@@ -265,7 +267,10 @@ public Action Command_AutoQueue(int client, int args) {
   SetClientCookie(client, gC_autoQueue, currentValue ? STRING_FALSE : STRING_TRUE);
 
   if (GetClientTeam(client) == CS_TEAM_CT) {
-    if (!currentValue) Command_JoinWardenQueue(client,0);
+    if (!currentValue) {
+      int pos = AddPlayerToWardenQueue(client);
+      if (pos > -1) CReplyToCommand(client, "%s %t", gs_prefix, "autoqueue_join", pos+1);
+    }
   }
 
   char locMessage[32];
@@ -443,6 +448,7 @@ void ChooseNextWarden(bool shouldRemove) {
 }
 
 void SetWarden(int target) {
+  if (!IsValidClient(target,true,false)) return;
   if (!warden_exist()) {
     warden_set(target,target);
   } else {
@@ -467,10 +473,9 @@ public Action Timer_SetWarden(Handle timer, Handle datapack) {
   int current = ReadPackCell(datapack);
 
   if (!warden_exist()) {
-    warden_set(target, target);
+    if IsValidClient(IsValidClient(target,true,false)) warden_set(target, target);
     return Plugin_Stop;
-  } else {
-    if (current < limit) {
+  } else if (current < limit && IsValidClient(target,true,false)) {
       ResetPack(datapack);
       WritePackCell(datapack, target);
       WritePackCell(datapack, limit);
@@ -505,7 +510,7 @@ stock bool RemovePlayerFromWardenQueue(int client) {
 stock bool GetClientCookieBool(int client, Handle cookie) {
   char buf[BOOL_STRING_LEN];
   GetClientCookie(client, cookie, buf, BOOL_STRING_LEN);
-  return StrContains(buf,"true",false) || strcmp(buf,"1");
+  return StrContains(buf,"true",false) > -1 || strcmp(buf,"1") == 0;
 }
 
 stock int GetRandomPlayerEx(int team, bool alive) {
