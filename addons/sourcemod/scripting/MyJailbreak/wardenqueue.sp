@@ -99,9 +99,9 @@ public void OnPluginStart() {
   gc_bPlugin = AutoExecConfig_CreateConVar("sm_wardenqueue_enable","1","0 - disable, 1 - enable", _, true, 0.0, true, 1.0);
   gc_bRemoveTemp = AutoExecConfig_CreateConVar("sm_wardenqueue_removetemporary","1","0/1 - remove wardens set after a warden death from the queue", _, true, 0.0, true, 1.0);
   gc_bEmptyRandomWarden = AutoExecConfig_CreateConVar("sm_wardenqueue_emptyrandom","0","0/1 - choose a random warden if the queue is empty at the start of the round", _, true, 0.0, true, 1.0);
-  gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
   gc_bVIPSkip = AutoExecConfig_CreateConVar("sm_wardenqueue_vipskip","1","0/1 - allow VIPs to skip to the front of warden queue", _, true, 0.0, true, 1.0);
   gc_sPrefix = AutoExecConfig_CreateConVar("sm_wardenqueue_prefix","MyJB.Queue","prefix for warden queue messages");
+  gc_sAdminFlag = AutoExecConfig_CreateConVar("sm_wardenqueue_vipflag","a","Flag for VIP");
 
   /* AutoExecConfig finalize */
   AutoExecConfig_ExecuteFile();
@@ -116,8 +116,8 @@ public void OnPluginStart() {
   g_aWardenQueue = CreateArray();
 }
 
-/* Force variables */
 public void OnAllPluginsLoaded() {
+  /* Force variables */
   gtc_bChooseRandom = FindConVar("sm_warden_choose_random");
   SetConVarString(gtc_bChooseRandom, "0", true, false);
   HookConVarChange(gtc_bChooseRandom, ConVarChangeFalse);
@@ -131,6 +131,7 @@ public void OnAllPluginsLoaded() {
   SetConVarString(gtc_bWadenChoice, "0", true, false);
   HookConVarChange(gtc_bWadenChoice, ConVarChangeFalse);
 
+  /* Update prefix */
   char prefix[MAX_PREFIX_LENGTH];
   GetConVarString(gc_sPrefix, prefix, MAX_PREFIX_LENGTH);
   UpdatePrefix(prefix);
@@ -163,7 +164,7 @@ public Action CommandListener_LeaveWardenQueue(int client, const char[] command,
 /* Commands */
 
 public Action Command_LeaveWardenQueue(int client, int args) {
-  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   if (warden_iswarden(client)) {
@@ -180,7 +181,7 @@ public Action Command_LeaveWardenQueue(int client, int args) {
 }
 
 public Action Command_JoinWardenQueue(int client, int args) {
-  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   if (GetClientTeam(client) == CS_TEAM_CT) {
@@ -214,7 +215,7 @@ public Action Command_JoinWardenQueue(int client, int args) {
 }
 
 public Action Command_ListQueue(int client, int args) {
-  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   int length = GetArraySize(g_aWardenQueue);
@@ -238,7 +239,7 @@ public Action Command_ListQueue(int client, int args) {
 }
 
 public Action AdminCommand_RemoveFromQueue(int client, int args) {
-  if (!IsValidClient(client, true, true)) return Plugin_Handled;
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
   if (!gc_bPlugin.BoolValue) return Plugin_Handled;
 
   int length = GetArraySize(g_aWardenQueue);
