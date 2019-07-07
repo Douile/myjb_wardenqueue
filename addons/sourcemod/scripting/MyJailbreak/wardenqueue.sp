@@ -55,9 +55,11 @@ ConVar gtc_bWadenChoice;
 
 /* Cookies */
 Handle gC_autoQueue;
+Handle gC_banQueue;
 
 /* Handles */
 Handle g_aWardenQueue;
+Handle g_aMenuData;
 
 /* Strings */
 #define MAX_PREFIX_LENGTH 64
@@ -75,7 +77,8 @@ bool g_bRoundActive = false;
 public Plugin myinfo = {
   name = "MyJailbreak - Warden Queue",
   author = "Douile",
-  version = PLUGIN_VERSION
+  version = PLUGIN_VERSION,
+  url = "https://github.com/Douile/myjb_warden_queue"
 };
 
 /* Start */
@@ -99,6 +102,7 @@ public void OnPluginStart() {
 
   /* Admin Commands */
   RegAdminCmd("sm_wrq", AdminCommand_RemoveFromQueue, ADMFLAG_GENERIC, "Remove a player from the warden queue");
+  RegAdminCmd("sm_bwq", AdminCommand_BanFromQueue, ADMFLAG_GENERIC, "Ban a player from the warden queue");
 
   /* AutoExecConfig */
   AutoExecConfig_SetFile("Warden_Queue", "MyJailbreak");
@@ -120,6 +124,7 @@ public void OnPluginStart() {
 
   /* Cookies */
   gC_autoQueue = RegClientCookie("wardenqueue_autoqueue","Automatically join the warden queue when playing as a guard", CookieAccess_Protected);
+  gC_banQueue = RegClientCookie("wardenqueue_banqueue", "Time left in queue ban", CookieAccess_Private);
 
   /* Hooks */
   HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
@@ -127,7 +132,9 @@ public void OnPluginStart() {
   HookEvent("player_team", Event_PlayerTeam_Post, EventHookMode_Post);
 
   /* Arrays */
-  g_aWardenQueue = CreateArray();
+  int max_clients = GetMaxClients();
+  g_aWardenQueue = CreateArray(1, max_clients);
+  g_aMenuData = CreateArray(max_clients+2, max_clients);
 }
 
 public void OnAllPluginsLoaded() {
@@ -309,6 +316,13 @@ public Action AdminCommand_RemoveFromQueue(int client, int args) {
   return Plugin_Handled;
 }
 
+public Action AdminCommand_BanFromQueue(int client, int args) {
+  if (!IsValidClient(client, false, true)) return Plugin_Handled;
+  if (!gc_bPlugin.BoolValue) return Plugin_Handled;
+
+  return DisplayMenu_BanFromQueue(client);
+}
+
 /* Menus */
 public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int item) {
   if (IsValidClient(client, true, true)) {
@@ -323,6 +337,29 @@ public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int 
 
     CPrintToChatAll("%s %t", gs_prefix, "queue_adminremove", adminName, targetName);
   }
+}
+
+Action DisplayMenu_BanFromQueue(int client) {
+  if (!CheckCommandAccess(client, "sm_bwq", ADMFLAG_GENERIC, true)) return Plugin_Handled;
+
+  int clients = GetClientCount(true);
+
+  Handle menu = CreateMenu(Menu_BanFromQueue);
+  if (clients > 9) {
+    SetMenuPagination(menu, 7);
+  } else {
+    SetMenuExitButton(menu, true);
+  }
+
+  for (int i=1;i<=MaxClients;i++) {
+    if (i != client && IsValidClient(i,false,true) && CanAdminTarget(client, i)) {
+      char cName[MAX_NAME_LENGTH];
+      GetClientName(i, cName, MAX_NAME_LENGTH);
+      AddMenuItem(menu, cName, cName, ITEMDRAW_DEFAULT);
+    }
+  }
+
+  return Plugin_Handled;
 }
 
 /* Events */
