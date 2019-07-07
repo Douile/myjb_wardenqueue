@@ -445,6 +445,12 @@ int ScanValidWarden() {
   return -1;
 }
 
+bool RemovePlayerFromWardenQueue(int client) {
+  int iIndex = FindValueInArray(g_aWardenQueue, client);
+  if (iIndex == -1) return;
+  RemoveFromArray(g_aWardenQueue, iIndex);
+}
+
 void ChooseNextWarden(bool shouldRemove) {
   if (GetArraySize(g_aWardenQueue)) {
     int iWarden = ScanValidWarden();
@@ -536,12 +542,6 @@ public void warden_OnWardenRemoved(int client) {
 }
 
 /* Stocks */
-
-stock bool RemovePlayerFromWardenQueue(int client) {
-  int iIndex = FindValueInArray(g_aWardenQueue, client);
-  if (iIndex == -1) return;
-  RemoveFromArray(g_aWardenQueue, iIndex);
-}
 
 stock bool GetClientCookieBool(int client, Handle cookie) {
   char buf[BOOL_STRING_LEN];
