@@ -170,7 +170,9 @@ public void ConVarChangePrefix(ConVar cvar, const char[] oldValue, const char[] 
 }
 
 
-/* Command Listeners */
+/*==============================================================================
+   Command Listeners
+==============================================================================*/
 
 public Action CommandListener_JoinWardenQueue(int client, const char[] command, int argc) {
   Command_JoinWardenQueue(client, argc);
@@ -182,7 +184,9 @@ public Action CommandListener_LeaveWardenQueue(int client, const char[] command,
   return Plugin_Stop;
 }
 
-/* Commands */
+/*==============================================================================
+   Commands
+==============================================================================*/
 
 public Action Command_LeaveWardenQueue(int client, int args) {
   if (!IsValidClient(client, false, true)) return Plugin_Handled;
@@ -323,7 +327,10 @@ public Action AdminCommand_BanFromQueue(int client, int args) {
   return DisplayMenu_BanFromQueue(client);
 }
 
-/* Menus */
+/*==============================================================================
+   Menu handlers
+==============================================================================*/
+
 public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int item) {
   if (IsValidClient(client, true, true)) {
     int target = GetArrayCell(g_aWardenQueue, item);
@@ -339,10 +346,44 @@ public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int 
   }
 }
 
+public int Menu_BanFromQueue(Handle menu, MenuAction action, int client, int item) {
+  if (action == MenuAction_Select) {
+    int max_clients = GetMaxClients();
+    int menuData[max_clients];
+
+    int size = GetArrayArray(g_aMenuData, client, menuData, max_clients);
+    if (item >= 0 && item < size) {
+      int target = menuData[item];
+
+      DisplayMenu_BanFromQueue_Player(client, target);
+    }
+  } else if (action == MenuAction_Cancel) {
+    SetArrayCell(g_aMenuData, client, 0);
+  }
+}
+
+public int Menu_BanFromQueue_Player(Handle menu, MenuAction action, int client, int item) {
+  if (action == MenuAction_Select) {
+    /* TODO: add ban player action
+       Unban or
+       ban for selected time
+       (Set cookie)
+    */
+  } else if (action == MenuAction_Cancel) {
+    DisplayMenu_BanFromQueue(client);
+  }
+}
+
+/*==============================================================================
+   Menu generators
+==============================================================================*/
+
 Action DisplayMenu_BanFromQueue(int client) {
   if (!CheckCommandAccess(client, "sm_bwq", ADMFLAG_GENERIC, true)) return Plugin_Handled;
 
   int clients = GetClientCount(true);
+
+  int menuData[clients];
 
   Handle menu = CreateMenu(Menu_BanFromQueue);
   if (clients > 9) {
@@ -351,18 +392,35 @@ Action DisplayMenu_BanFromQueue(int client) {
     SetMenuExitButton(menu, true);
   }
 
+  int menuPos = 0;
+
   for (int i=1;i<=MaxClients;i++) {
     if (i != client && IsValidClient(i,false,true) && CanAdminTarget(client, i)) {
       char cName[MAX_NAME_LENGTH];
       GetClientName(i, cName, MAX_NAME_LENGTH);
-      AddMenuItem(menu, cName, cName, ITEMDRAW_DEFAULT);
+      bool added = AddMenuItem(menu, cName, cName, ITEMDRAW_DEFAULT);
+      if (added) {
+        menuData[menuPos] = i;
+        menuPos += 1;
+      }
     }
   }
+
+  SetArrayArray(g_aMenuData, client, menuData, menuPos);
 
   return Plugin_Handled;
 }
 
-/* Events */
+Action DisplayMenu_BanFromQueue_Player(int client, int target) {
+  if (!CheckCommandAccess(client, "sm_bwq", ADMFLAG_GENERIC, true)) return Plugin_Handled;
+  /* Maybe check client can target the target here */
+
+  /* TODO: Generate player info menu (name, currently banned, unban, ban for amount of time) */
+}
+
+/*==============================================================================
+   Events
+==============================================================================*/
 
 public Action Event_PlayerTeam_Post(Event event, const char[] szName, bool bDontBroadcast) {
   int client = GetClientOfUserId(event.GetInt("userid"));
@@ -393,7 +451,9 @@ public Action Event_RoundStartPost(Event event, const char[] szName, bool bDontB
   return Plugin_Continue;
 }
 
-/* Functions */
+/*==============================================================================
+   General functions
+==============================================================================*/
 
  int AddPlayerToWardenQueue(int client) {
   int iIndex = FindValueInArray(g_aWardenQueue, client);
@@ -508,7 +568,10 @@ void UpdatePrefix(const char[] prefix) {
   Format(gs_prefix,MAX_PREFIX_LENGTH,"[{green}%s{default}]",prefix);
 }
 
-/* Timers */
+/*==============================================================================
+   Timers
+==============================================================================*/
+
 public Action Timer_SetWarden(Handle timer, Handle datapack) {
   ResetPack(datapack);
   int target = ReadPackCell(datapack);
@@ -529,7 +592,9 @@ public Action Timer_SetWarden(Handle timer, Handle datapack) {
   }
 }
 
-/* Forwards */
+/*==============================================================================
+   Forwards
+==============================================================================*/
 
 public void OnClientDisconnect_Post(int client) {
   RemovePlayerFromWardenQueue(client);
@@ -541,7 +606,9 @@ public void warden_OnWardenRemoved(int client) {
  }
 }
 
-/* Stocks */
+/*==============================================================================
+   Stocks
+==============================================================================*/
 
 stock bool GetClientCookieBool(int client, Handle cookie) {
   char buf[BOOL_STRING_LEN];
