@@ -1,0 +1,18 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup SourcePawn Compiler
+      uses: rumblefrog/setup-sp@v1.0.0
+      with:
+        # Version of SP compiler
+        version: 1.10.x # default is 1.10.x
+    - name: Compile
+      run: spcomp -iaddons/sourcemod/scripting/include addons/sourcemod/scripting/MyJailbreak/wardenqueue.sp -o wardenqueue.smx
