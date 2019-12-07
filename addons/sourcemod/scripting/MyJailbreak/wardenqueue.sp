@@ -349,7 +349,7 @@ public int Menu_RemoveFromQueue(Handle menu, MenuAction action, int client, int 
 public int Menu_BanFromQueue(Handle menu, MenuAction action, int client, int item) {
   if (action == MenuAction_Select) {
     int max_clients = GetMaxClients();
-    int menuData[max_clients];
+    int[] menuData = new int[max_clients];
 
     int size = GetArrayArray(g_aMenuData, client, menuData, max_clients);
     if (item >= 0 && item < size) {
@@ -383,7 +383,7 @@ Action DisplayMenu_BanFromQueue(int client) {
 
   int clients = GetClientCount(true);
 
-  int menuData[clients];
+  int[] menuData = new int[clients];
 
   Handle menu = CreateMenu(Menu_BanFromQueue);
   if (clients > 9) {
